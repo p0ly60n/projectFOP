@@ -71,21 +71,35 @@ public final class Location implements Comparable<Location> {
 
     @Override
     public int compareTo(@NotNull Location o) {
-        return crash(); // TODO: H1.1 - remove if implemented
+        if (o.getX() == this.getX() && o.getY() == this.getY()) {
+            return 0;
+        }
+        else if (this.getX() < o.getX() || (this.getX() == o.getX() && this.getY() < o.getY())) {
+            return -1;
+        }
+        else {
+            return 1;
+        }
     }
 
     @Override
     public int hashCode() {
-        return crash(); // TODO: H1.2 - remove if implemented
+        //calculate the hash of the two numbers by using the cantors function
+        return (x + y) * (x + y + 1) / 2 + x;
     }
 
     @Override
     public boolean equals(Object o) {
-        return crash(); // TODO: H1.3 - remove if implemented
+        if (o != null && o instanceof Location castLocation) {
+            return (castLocation.getX() == this.getX() && castLocation.getY() == this.getY());
+        }
+        else {
+            return false;
+        }
     }
 
     @Override
     public String toString() {
-        return crash(); // TODO: H1.4 - remove if implemented
+        return "(%d,%d)".formatted(this.getX(), this.getY());
     }
 }

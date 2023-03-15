@@ -3,6 +3,7 @@ package projekt.base;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 import static org.tudalgo.algoutils.student.Student.crash;
 
@@ -84,8 +85,8 @@ public final class Location implements Comparable<Location> {
 
     @Override
     public int hashCode() {
-        //calculate the hash of the two numbers by using the cantors function
-        return (x + y) * (x + y + 1) / 2 + x;
+        //calculate the hash of the two numbers by using the cantor pairing function
+        return Objects.hash("" + x + "" + y);
     }
 
     @Override

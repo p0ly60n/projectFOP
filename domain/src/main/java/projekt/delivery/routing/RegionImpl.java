@@ -33,7 +33,6 @@ class RegionImpl implements Region {
 
     @Override
     public @Nullable Node getNode(Location location) {
-        //TODO: Verbindliche Anforderungen unklar
         return nodes.get(location);
     }
 
@@ -67,7 +66,8 @@ class RegionImpl implements Region {
      * @param node the {@link NodeImpl} to add.
      */
     void putNode(NodeImpl node) {
-        if (!node.getRegion().equals(this)) {
+        //TODO: reihenefolge geändert
+        if (!this.equals(node.getRegion())) {
             throw new IllegalArgumentException("Node %s has incorrect region".formatted(node.toString()));
         }
         else {

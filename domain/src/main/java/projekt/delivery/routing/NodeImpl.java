@@ -3,7 +3,9 @@ package projekt.delivery.routing;
 import org.jetbrains.annotations.Nullable;
 import projekt.base.Location;
 
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.tudalgo.algoutils.student.Student.crash;
 
@@ -54,36 +56,41 @@ class NodeImpl implements Region.Node {
 
     @Override
     public @Nullable Region.Edge getEdge(Region.Node other) {
-        return crash(); // TODO: H3.1 - remove if implemented
+        return other.getRegion().getEdge(this.location, other.getLocation());
     }
 
     @Override
     public Set<Region.Node> getAdjacentNodes() {
-        return crash(); // TODO: H3.2 - remove if implemented
+        return connections.stream().map(x -> this.getRegion().getNode(x)).collect(Collectors.toSet());
     }
 
     @Override
     public Set<Region.Edge> getAdjacentEdges() {
-        return crash(); // TODO: H3.3 - remove if implemented
+        return connections.stream().map(x -> this.getRegion().getEdge(this.location, x)).collect(Collectors.toSet());
     }
 
     @Override
     public int compareTo(Region.Node o) {
-         return crash(); // TODO: H3.4 - remove if implemented
+        return location.compareTo(o.getLocation());
     }
 
     @Override
     public boolean equals(Object o) {
-        return crash(); // TODO: H3.5 - remove if implemented
+        if (o != null && o instanceof NodeImpl castO) {
+            return (o == this || (Objects.equals(this.name, castO.name) && Objects.equals(this.location, castO.location) && Objects.equals(this.connections, castO.connections)));
+        }
+        else {
+            return false;
+        }  
     }
 
     @Override
     public int hashCode() {
-        return crash(); // TODO: H3.6 - remove if implemented
+        return Objects.hash(name, location, connections);
     }
 
     @Override
     public String toString() {
-        return crash(); // TODO: H3.7 - remove if implemented
+        return "NodeImpl(name='%s', location='%s', connections='%s')".formatted(name.toString(), location.toString(), connections.toString());
     }
 }

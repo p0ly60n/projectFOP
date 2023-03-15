@@ -56,7 +56,17 @@ class VehicleImpl implements Vehicle {
 
     @Override
     public void moveQueued(Region.Node node, BiConsumer<? super Vehicle, Long> arrivalAction) {
-        crash(); // TODO: H5.3 - remove if implemented
+        if (node.equals(occupied.getComponent()) && moveQueue.size() <= 1) {
+            throw new IllegalArgumentException();
+        }
+        else {
+            if (moveQueue.size() == 0) {
+                moveQueue.add(new PathImpl(vehicleManager.getPathCalculator().getPath((Region.Node) occupied.getComponent(), node), arrivalAction));
+            }
+            else {
+                moveQueue.add(new PathImpl(vehicleManager.getPathCalculator().getPath((Region.Node) getPreviousOccupied(), node), arrivalAction));
+            }
+        }
     }
 
     @Override
@@ -125,11 +135,17 @@ class VehicleImpl implements Vehicle {
     }
 
     void loadOrder(ConfirmedOrder order) {
-        crash(); // TODO: H5.2 - remove if implemented
+        double potentialWeight = getCurrentWeight() + order.getWeight();
+        if (potentialWeight <= getCapacity()) {
+            orders.add(order);
+        }
+        else {
+            throw new VehicleOverloadedException(this, potentialWeight - getCapacity());
+        }
     }
 
     void unloadOrder(ConfirmedOrder order) {
-        crash(); // TODO: H5.2 - remove if implemented
+        orders.remove(order);
     }
 
     @Override

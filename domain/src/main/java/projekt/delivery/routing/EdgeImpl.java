@@ -5,6 +5,9 @@ import projekt.base.Location;
 
 import static org.tudalgo.algoutils.student.Student.crash;
 
+import java.util.Comparator;
+import java.util.Objects;
+
 /**
  * Represents a weighted edge in a graph.
  */
@@ -76,31 +79,40 @@ class EdgeImpl implements Region.Edge {
 
     @Override
     public Region.Node getNodeA() {
-        return crash(); // TODO: H4.1 - remove if implemented
+        Region.Node nodeA = region.getNode(locationA);
+        return (nodeA != null) ? nodeA : null;
     }
 
     @Override
     public Region.Node getNodeB() {
-        return crash(); // TODO: H4.1 - remove if implemented
+        Region.Node nodeB = region.getNode(locationB);
+        return (nodeB != null) ? nodeB : null;
     }
 
     @Override
     public int compareTo(Region.@NotNull Edge o) {
-        return crash(); // TODO: H4.2 - remove if implemented
+        //TODO: Bruda kein Plan was die mit Comparator wollen xD
+        return 0;
     }
 
     @Override
     public boolean equals(Object o) {
-        return crash(); // TODO: H4.3 - remove if implemented
+        if (o != null && o instanceof EdgeImpl castO) {
+            return (this == o || (Objects.equals(this.name, castO.name) && Objects.equals(this.locationA, castO.locationA) 
+                    && Objects.equals(this.locationB, castO.locationB) && Objects.equals(this.duration, castO.duration)));
+        }
+        else {
+            return false;
+        }
     }
 
     @Override
     public int hashCode() {
-        return crash(); // TODO: H4.4 - remove if implemented
+        return Objects.hash(name, locationA, locationB, duration);
     }
 
     @Override
     public String toString() {
-        return crash(); // TODO: H4.5 - remove if implemented
+        return "EdgeImpl(name='%s', locationA='%s', locationB='%s', duration='%d')".formatted(name.toString(), locationA.toString(), locationB.toString(), duration);
     }
 }

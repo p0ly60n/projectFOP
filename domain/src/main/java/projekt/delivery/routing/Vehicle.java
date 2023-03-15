@@ -96,7 +96,7 @@ public interface Vehicle extends Comparable<Vehicle> {
      * @return The total weight of all {@link ConfirmedOrder}s loaded onto this {@link Vehicle}.
      */
     default double getCurrentWeight() {
-        return crash(); // TODO: H5.1 - remove if implemented
+        return getOrders().stream().map(x -> x.getWeight()).mapToDouble(Double::doubleValue).sum();
     }
 
     /**

@@ -85,8 +85,11 @@ public final class Location implements Comparable<Location> {
 
     @Override
     public int hashCode() {
-        //calculate the hash of the two numbers by using the cantor pairing function
-        return Objects.hash("" + x + "" + y);
+        // calculate the hash of the two numbers by using the cantor pairing function, which is only defined for positive
+        // decimal values
+        int mappedX = (x < 0) ? (2 * (-x) + 1) :  2 * x; // map negative x to odd positive number number
+        int mappedY = (y < 0) ? (2 * (-y) + 1) :  2 * y; // map negative y to odd positive number number
+        return ((mappedX + mappedY) * (mappedX + mappedY + 1)) / 2 + mappedY;
     }
 
     @Override

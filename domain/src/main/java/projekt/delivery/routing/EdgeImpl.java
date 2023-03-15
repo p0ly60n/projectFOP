@@ -91,8 +91,10 @@ class EdgeImpl implements Region.Edge {
 
     @Override
     public int compareTo(Region.@NotNull Edge o) {
-        //TODO: Bruda kein Plan was die mit Comparator wollen xD
-        return 0;
+        // how did I even do that? this took so much time to understand xD
+        Comparator<Region.Edge> compNodeA = Comparator.comparing(Region.Edge::getNodeA);
+        Comparator<Region.Edge> compNodeB = Comparator.comparing(Region.Edge::getNodeB);
+        return compNodeA.thenComparing(compNodeB).compare(this, o);
     }
 
     @Override

@@ -18,15 +18,9 @@ jagr {
             from(project(":domain"))
             from(project(":infrastructure"))
 
-            // ACHTUNG!
-            // Kommentieren Sie die folgenden Zeilen ein und setzen Sie im folgenden Bereich Ihre
-            // TU-ID (NICHT Ihre Matrikelnummer!), Ihren Nachnamen und Ihren Vornamen
-            // in Anführungszeichen (z.B. "ab12cdef" für Ihre TU-ID) ein! Geben Sie dabei die Daten eines beliebigen
-            // Gruppenmitgliedes an.
-
-            //studentId.set("null")
-            //firstName.set("null")
-            //lastName.set("null")
+            studentId.set("mw44vovu")
+            firstName.set("Marco")
+            lastName.set("Weiß")
         }
     }
     graders {

@@ -53,8 +53,8 @@ class VehicleImpl implements Vehicle {
     public void moveDirect(Region.Node node, BiConsumer<? super Vehicle, Long> arrivalAction) {
         VehicleImpl.PathImpl nextPath = moveQueue.getFirst();
         moveQueue.clear();
-        if (occupied.getComponent() instanceof Region.Node) { // check if component is node
-            if (occupied.getComponent().equals(node)) {
+        if (occupied.getComponent() instanceof Region.Node castOccupiedNode) { // check if component is node
+            if (castOccupiedNode.equals(node)) {
                 throw new IllegalArgumentException();
             } else {
                 moveQueued(node, arrivalAction);
@@ -152,7 +152,7 @@ class VehicleImpl implements Vehicle {
             orders.add(order);
         }
         else {
-            throw new VehicleOverloadedException(this, potentialWeight - getCapacity());
+            throw new VehicleOverloadedException(this, potentialWeight);
         }
     }
 

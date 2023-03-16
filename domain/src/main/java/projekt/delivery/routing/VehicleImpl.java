@@ -76,7 +76,7 @@ class VehicleImpl implements Vehicle {
                 moveQueue.add(new PathImpl(vehicleManager.getPathCalculator().getPath((Region.Node) occupied.getComponent(), node), arrivalAction));
             }
             else {
-                moveQueue.add(new PathImpl(vehicleManager.getPathCalculator().getPath((Region.Node) getPreviousOccupied(), node), arrivalAction));
+                moveQueue.add(new PathImpl(vehicleManager.getPathCalculator().getPath(moveQueue.getLast().nodes.getLast(), node), arrivalAction));
             }
         }
     }

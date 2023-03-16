@@ -31,15 +31,43 @@ class VehicleManagerImpl implements VehicleManager {
     }
 
     private Map<Region.Node, OccupiedNodeImpl<? extends Region.Node>> toOccupiedNodes(Collection<Region.Node> nodes) {
-        return crash(); // TODO: H6.1 - remove if implemented
+        Map<Region.Node, OccupiedNodeImpl<? extends Region.Node>> retMap = new HashMap<>();
+        Iterator<Region.Node> iter = nodes.iterator();
+
+        while (iter.hasNext()) {
+            Region.Node nextNode = iter.next();
+
+            if (nextNode instanceof Region.Restaurant castNextNode) {
+                retMap.put(castNextNode, new OccupiedRestaurantImpl(castNextNode, this));
+            }
+            else if (nextNode instanceof Region.Neighborhood castNextNode) {
+                retMap.put(castNextNode, new OccupiedNeighborhoodImpl(castNextNode, this));
+            }
+            else {
+                retMap.put(nextNode, new OccupiedNodeImpl<Region.Node>(nextNode, this));
+            }
+        }
+
+        return Collections.unmodifiableMap(retMap);
     }
 
     private Map<Region.Edge, OccupiedEdgeImpl> toOccupiedEdges(Collection<Region.Edge> edges) {
-        return crash(); // TODO: H6.1 - remove if implemented
+        Map<Region.Edge, OccupiedEdgeImpl> retMap = new HashMap<>();
+        Iterator<Region.Edge> iter = edges.iterator();
+
+        while (iter.hasNext()) {
+            Region.Edge nextEdge = iter.next();
+            retMap.put(nextEdge, new OccupiedEdgeImpl(nextEdge, this));
+        }
+
+        return Collections.unmodifiableMap(retMap);
     }
 
     private Set<AbstractOccupied<?>> getAllOccupied() {
-        return crash(); // TODO: H6.2 - remove if implemented
+        Set<AbstractOccupied<?>> retSet = new HashSet<>();
+        retSet.addAll(occupiedNodes.values());
+        retSet.addAll(occupiedEdges.values());
+        return Collections.unmodifiableSet(retSet);
     }
 
     private OccupiedNodeImpl<? extends Region.Node> getOccupiedNode(Location location) {
@@ -72,8 +100,37 @@ class VehicleManagerImpl implements VehicleManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <C extends Region.Component<C>> AbstractOccupied<C> getOccupied(C component) {
-        return crash(); // TODO: H6.3 - remove if implemented
+        //TODO: Casting should be improved, my inner monk is getting crazy
+        if (component == null) {
+            throw new NullPointerException("Component is null!");
+        }
+        else if (!(component instanceof Region.Node || component instanceof Region.Edge)) {
+            throw new IllegalArgumentException("Component is not of recognized subtype: %s".formatted(component.getClass().getName()));
+        }
+        else {
+            if (component instanceof Region.Node castComponent) { // Component is Node
+                AbstractOccupied<?> occupiedNode = occupiedNodes.get(castComponent);
+                if (occupiedNode == null) {
+                    throw new IllegalArgumentException("Could not find occupied node for %s".formatted(component.toString()));
+                }
+                else {
+                    return (AbstractOccupied<C>) occupiedNode;
+                }
+            }
+            else { // Component is Edge
+                var occupiedEdge = occupiedEdges.get((Region.Edge) component);
+
+                if (occupiedEdge == null) {
+                    throw new IllegalArgumentException("Could not find occupied edge for %s".formatted(component.toString()));
+                }
+                else {
+                    return (AbstractOccupied<C>) occupiedEdge;
+                }
+            }
+
+        }
     }
 
     @Override
@@ -86,7 +143,15 @@ class VehicleManagerImpl implements VehicleManager {
 
     @Override
     public OccupiedRestaurant getOccupiedRestaurant(Region.Node node) {
-        return crash(); // TODO: H6.4- remove if implemented
+        if (node == null) {
+            throw new NullPointerException("Node is null!");
+        }
+        else if (!(node instanceof OccupiedRestaurant) && !occupiedNodes.containsKey(node)) {
+            throw new IllegalArgumentException("Node %s is not a restaurant".formatted(node.toString()));
+        }
+        else {
+            return (OccupiedRestaurant) occupiedNodes.get(node);
+        }
     }
 
     @Override
@@ -99,7 +164,15 @@ class VehicleManagerImpl implements VehicleManager {
 
     @Override
     public OccupiedNeighborhood getOccupiedNeighborhood(Region.Node node) {
-        return crash(); // TODO: H6.4 - remove if implemented
+        if (node == null) {
+            throw new NullPointerException("Node is null!");
+        }
+        else if (!(node instanceof OccupiedNeighborhood) && !occupiedNodes.containsKey(node)) {
+            throw new IllegalArgumentException("Node %s is not a neighborhood".formatted(node.toString()));
+        }
+        else {
+            return (OccupiedNeighborhood) occupiedNodes.get(node);
+        }
     }
 
     @Override

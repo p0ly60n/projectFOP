@@ -102,7 +102,6 @@ class VehicleManagerImpl implements VehicleManager {
     @Override
     @SuppressWarnings("unchecked")
     public <C extends Region.Component<C>> AbstractOccupied<C> getOccupied(C component) {
-        //TODO: Casting should be improved, my inner monk is getting crazy
         if (component == null) {
             throw new NullPointerException("Component is null!");
         }
@@ -146,11 +145,11 @@ class VehicleManagerImpl implements VehicleManager {
         if (node == null) {
             throw new NullPointerException("Node is null!");
         }
-        else if (!(node instanceof OccupiedRestaurant) && !occupiedNodes.containsKey(node)) {
-            throw new IllegalArgumentException("Node %s is not a restaurant".formatted(node.toString()));
+        else if (occupiedNodes.containsKey(node) && occupiedNodes.get(node) instanceof OccupiedRestaurant castOccupied) {
+            return castOccupied;
         }
         else {
-            return (OccupiedRestaurant) occupiedNodes.get(node);
+            throw new IllegalArgumentException("Node %s is not a restaurant".formatted(node.toString()));
         }
     }
 
@@ -167,11 +166,11 @@ class VehicleManagerImpl implements VehicleManager {
         if (node == null) {
             throw new NullPointerException("Node is null!");
         }
-        else if (!(node instanceof OccupiedNeighborhood) && !occupiedNodes.containsKey(node)) {
-            throw new IllegalArgumentException("Node %s is not a neighborhood".formatted(node.toString()));
+        else if (occupiedNodes.containsKey(node) && occupiedNodes.get(node) instanceof OccupiedNeighborhood castOccupied) {
+            return castOccupied;
         }
         else {
-            return (OccupiedNeighborhood) occupiedNodes.get(node);
+            throw new IllegalArgumentException("Node %s is not a neighborhood".formatted(node.toString()));
         }
     }
 

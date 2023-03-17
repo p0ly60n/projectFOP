@@ -56,7 +56,7 @@ class NodeImpl implements Region.Node {
 
     @Override
     public @Nullable Region.Edge getEdge(Region.Node other) {
-        return other.getRegion().getEdge(this.location, other.getLocation());
+        return this.getRegion().getEdge(this.location, other.getLocation());
     }
 
     @Override
@@ -81,7 +81,7 @@ class NodeImpl implements Region.Node {
         }
         else {
             return false;
-        }  
+        }
     }
 
     @Override

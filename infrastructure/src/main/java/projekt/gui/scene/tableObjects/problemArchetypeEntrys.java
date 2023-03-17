@@ -1,5 +1,7 @@
 package projekt.gui.scene.tableObjects;
 
+import java.awt.*;
+
 public class problemArchetypeEntrys {
     private String title;
     private String param1;

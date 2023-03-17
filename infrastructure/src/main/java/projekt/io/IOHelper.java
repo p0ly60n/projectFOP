@@ -88,6 +88,7 @@ public class IOHelper {
         if (!PROBLEMS_DIR.exists()) {
             PROBLEMS_DIR.mkdirs();
         }
+        System.out.println("Wrote Archetype. Name: " + problem.name());
 
         File file = Path.of(PROBLEMS_DIR.getPath(), problem.name() + ".txt").toFile();
 

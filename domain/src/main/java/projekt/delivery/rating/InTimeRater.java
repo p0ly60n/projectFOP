@@ -1,6 +1,8 @@
 package projekt.delivery.rating;
 
+import projekt.delivery.event.DeliverOrderEvent;
 import projekt.delivery.event.Event;
+import projekt.delivery.event.OrderReceivedEvent;
 import projekt.delivery.routing.ConfirmedOrder;
 import projekt.delivery.simulation.Simulation;
 
@@ -20,6 +22,9 @@ public class InTimeRater implements Rater {
     private final long ignoredTicksOff;
     private final long maxTicksOff;
 
+    private long maxTotalTicksOff = 0;
+    private long actualTotalTicksOff = 0;
+
     /**
      * Creates a new {@link InTimeRater} instance.
      * @param ignoredTicksOff The amount of ticks this {@link InTimeRater} ignores when dealing with an {@link ConfirmedOrder} that didn't get delivered in time.
@@ -35,12 +40,41 @@ public class InTimeRater implements Rater {
 
     @Override
     public double getScore() {
-        return crash(); // TODO: H8.2 - remove if implemented
+        return (maxTotalTicksOff != 0) ? 1 - ((double) actualTotalTicksOff / maxTotalTicksOff) : 0;
     }
 
     @Override
     public void onTick(List<Event> events, long tick) {
-        crash(); // TODO: H8.2 - remove if implemented
+        for (Event event : events) {
+            if (event instanceof DeliverOrderEvent castEvent) {
+                long expectedEndTick = castEvent.getOrder().getDeliveryInterval().end();
+                long expectedStartTick = castEvent.getOrder().getDeliveryInterval().start();
+
+                if (expectedEndTick < tick) { // if the expected end tick is smaller than the current real delivery tick, there is a delay
+                    long delay = tick - expectedEndTick;
+
+                    maxTotalTicksOff += maxTicksOff;
+                    actualTotalTicksOff = (delay - ignoredTicksOff > maxTicksOff) ? maxTicksOff : delay - ignoredTicksOff;
+                }
+
+                else if (expectedEndTick == tick) { // on time
+                    maxTotalTicksOff += maxTicksOff;
+                }
+
+                else { // arrived to early
+                    long delay = expectedEndTick - tick;
+
+                    maxTotalTicksOff += maxTicksOff;
+                    actualTotalTicksOff += (delay - ignoredTicksOff > maxTicksOff) ? maxTicksOff : delay - ignoredTicksOff;
+                }
+            }
+            else if (event instanceof OrderReceivedEvent castEvent) {
+                if (castEvent.getOrder().getDeliveryInterval().end() > tick) {
+                    maxTotalTicksOff += maxTicksOff;
+                    actualTotalTicksOff += maxTicksOff;
+                }
+            }
+        }
     }
 
     /**

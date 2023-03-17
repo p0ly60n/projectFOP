@@ -51,6 +51,37 @@ class VehicleImpl implements Vehicle {
 
     @Override
     public void moveDirect(Region.Node node, BiConsumer<? super Vehicle, Long> arrivalAction) {
+
+
+        moveQueue.clear();
+        if (occupied instanceof Region.Node){
+            if (occupied.getComponent() == node)
+                throw new IllegalArgumentException();
+        }
+
+        if (occupied instanceof Region.Edge){
+            Region.Node previousOccupied =
+                //Stream aller Fahrzeuge dieser Node
+                occupied.getVehicles().stream()
+                    //Nur dieses
+                .filter(v -> v == this)
+                    //Get prev component
+                .map(v-> v.getPreviousOccupied().getComponent())
+                    //Cast to node
+                .filter(c -> c instanceof Region.Node).map(c -> (Region.Node) c)
+                    //Stream besteht nur aus dem Element dieses Fahrzeugs, raw conversion
+                    .toList().get(0);
+            Region.Edge edge = (Region.Edge) occupied.getComponent();
+            if (previousOccupied == edge.getNodeA()){
+                moveQueue.add(new PathImpl(vehicleManager.getPathCalculator().getPath(edge.getNodeB(), node), arrivalAction));
+            }
+            else if (previousOccupied == edge.getNodeB()){
+                moveQueue.add(new PathImpl(vehicleManager.getPathCalculator().getPath(edge.getNodeA(), node), arrivalAction));
+            } throw new RuntimeException("Something went terribly wrong");
+        }
+        moveQueued(node, arrivalAction);
+
+        /*
         //TODO: fix this shit
         VehicleImpl.PathImpl nextPath = null;
         if (moveQueue.size() > 0) {
@@ -69,6 +100,8 @@ class VehicleImpl implements Vehicle {
             moveQueue.add(new PathImpl(vehicleManager.getPathCalculator().getPath(edge.getNodeB(), node), arrivalAction));
             moveQueued(node, arrivalAction);
         }
+
+         */
     }
 
     @Override

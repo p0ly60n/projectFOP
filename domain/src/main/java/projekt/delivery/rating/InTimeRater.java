@@ -40,7 +40,8 @@ public class InTimeRater implements Rater {
 
     @Override
     public void onTick(List<Event> events, long tick) {
-        crash(); // TODO: H8.2 - remove if implemented
+        return;
+        //crash(); // TODO: H8.2 - remove if implemented
     }
 
     /**

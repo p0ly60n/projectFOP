@@ -43,7 +43,13 @@ public class FridayOrderGenerator implements OrderGenerator {
      * @param lastTick The last tick this {@link OrderGenerator} can return a non-empty list.
      * @param seed The seed for the used {@link Random} instance. If negative a random seed will be used.
      */
-    private FridayOrderGenerator(int orderCount, VehicleManager vehicleManager, int deliveryInterval, double maxWeight, double standardDeviation, long lastTick, int seed) {
+    private FridayOrderGenerator(int orderCount,
+                                 VehicleManager vehicleManager,
+                                 int deliveryInterval,
+                                 double maxWeight,
+                                 double standardDeviation,
+                                 long lastTick,
+                                 int seed) {
         random = seed < 0 ? new Random() : new Random(seed);
 
         this.vehicleManager = vehicleManager;
@@ -63,6 +69,7 @@ public class FridayOrderGenerator implements OrderGenerator {
             long tick = Math.round(gaussianVal * lastTick);
 
             tickOrderMap.put(tick, (tickOrderMap.containsKey(tick)) ? tickOrderMap.get(tick) + 1 : 1);
+
         }
     }
 

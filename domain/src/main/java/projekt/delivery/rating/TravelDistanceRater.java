@@ -42,7 +42,8 @@ public class TravelDistanceRater implements Rater {
 
     @Override
     public void onTick(List<Event> events, long tick) {
-        crash(); // TODO: H8.3 - remove if implemented
+        return;
+        //crash(); // TODO: H8.3 - remove if implemented
     }
 
     /**

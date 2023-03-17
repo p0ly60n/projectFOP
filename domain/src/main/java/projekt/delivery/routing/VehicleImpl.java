@@ -73,7 +73,7 @@ class VehicleImpl implements Vehicle {
 
     @Override
     public void moveQueued(Region.Node node, BiConsumer<? super Vehicle, Long> arrivalAction) {
-        if (node.equals(occupied.getComponent()) && moveQueue.size() <= 1) {
+        if (node.equals(occupied.getComponent()) && moveQueue.size() == 0) {
             throw new IllegalArgumentException();
         }
         else {

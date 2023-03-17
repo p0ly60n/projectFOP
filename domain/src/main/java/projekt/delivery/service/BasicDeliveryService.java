@@ -50,6 +50,8 @@ public class BasicDeliveryService extends AbstractDeliveryService {
         }
         //Bei jedem Vehicle
         for (Vehicle vehicle : vehicleManager.getVehicles().stream().toList()){
+            if (!(vehicle.getOccupied() instanceof VehicleManager.OccupiedRestaurant) || vehicle.getOrders().size() < 1)
+                continue;
             //eine Liste aller Ziellocations anlegen
             List<VehicleManager.OccupiedNeighborhood> destinations = vehicle.getOrders().stream()
                 .map(o -> vehicleManager.getOccupiedNeighborhood(vehicleManager.getRegion().getNode(o.getLocation()))).distinct().toList();
@@ -57,9 +59,11 @@ public class BasicDeliveryService extends AbstractDeliveryService {
             //Für jeder Ziellocation alle Orders an die Location auf das Vehicel packen und später delivern
             for (VehicleManager.OccupiedNeighborhood destination : destinations){
                 List<ConfirmedOrder> list = vehicle.getOrders().stream().filter(o -> o.getLocation() == destination.getComponent().getLocation()).toList();
+                System.out.println(destination.getComponent().getName());
                 vehicle.moveQueued(destination.getComponent(),
                     (v, t) -> list.forEach(conOrder -> destination.deliverOrder(v, conOrder, t)));
             }
+
             //Zurück zum Restaurant
             if (destinations.size()>0)
                 vehicle.moveQueued((Region.Node) vehicle.getOccupied().getComponent());

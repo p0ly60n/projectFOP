@@ -16,6 +16,7 @@ import projekt.delivery.rating.InTimeRater;
 import projekt.delivery.rating.RatingCriteria;
 import projekt.delivery.rating.TravelDistanceRater;
 import projekt.delivery.routing.Region;
+import projekt.delivery.routing.Vehicle;
 import projekt.delivery.service.BasicDeliveryService;
 import projekt.delivery.service.BogoDeliveryService;
 import projekt.delivery.service.DeliveryService;
@@ -100,16 +101,27 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
         choiceBoxHBox.getChildren().addAll(choiceBox);
 
 
-        problemVBox.getChildren().addAll(labelHBox, choiceBoxHBox, problemTable);
+        input1 = new TextField();
+        input2 = new TextField();
+        input3 = new TextField();
+
+
+        HBox inputBox = new HBox(input1, input2, input3);
+        input1.setPrefWidth(100);
+        input2.setPrefWidth(75);
+        input3.setPrefWidth(75);
+
+
+        problemVBox.getChildren().addAll(labelHBox, choiceBoxHBox, problemTable, inputBox);
 
         return problemVBox;
     }
+    private TextField input1, input2, input3;
     private TableView<problemArchetypeEntrys> problemTable;
     private void updateProblemTable(ProblemArchetype archetype){
         if (problemTable == null)
             problemTable = createArchetypeTable(archetype);
-        DecimalFormat twoDForm = new DecimalFormat("#.###");
-        String d = twoDForm.format(9.1342);
+        DecimalFormat twoDForm = new DecimalFormat("#.##");
 
 
         problemTable.getItems().removeIf(v->true);
@@ -127,7 +139,6 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
 
         problemTable.getItems().add(new problemArchetypeEntrys(" ", " ", " "));
 
-        problemTable.getItems().add(new problemArchetypeEntrys("Type", "Amount", "Capacity"));
 
         /*
         problemTable.getItems().add(new problemArchetypeEntrys("Nodes total",
@@ -135,13 +146,20 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
         problemTable.getItems().add(new problemArchetypeEntrys("Vehicles total",
             String.valueOf(archetype.vehicleManager().getAllVehicles().size()), " "));
 */
-        problemTable.getItems().add(new problemArchetypeEntrys("Restaurants",
-            String.valueOf(archetype.vehicleManager().getRegion().getNodes().stream().
-                filter(n -> n instanceof Region.Restaurant).toList().size()), " "));
+        problemTable.getItems().add(new problemArchetypeEntrys(archetype.vehicleManager().getRegion().getNodes().stream().
+                filter(n -> n instanceof Region.Restaurant).toList().size() + " Restaurants",
+            " X ",
+            " Y "));
 
         int rest = 0;
-        for (Region.Restaurant restaurant : archetype.vehicleManager().getRegion().getNodes().stream().filter(Region.Restaurant.class::isInstance).map(Region.Restaurant.class::cast).toList()){
+        for (Region.Restaurant restaurant : archetype.vehicleManager().getRegion().getNodes().stream().filter(Region.Restaurant.class::isInstance).map(Region.Restaurant.class::cast).toList()) {
+            problemTable.getItems().add(new problemArchetypeEntrys(" - (" + rest + ") " + restaurant.getName(),
+                String.valueOf(restaurant.getLocation().getX()),
+                String.valueOf(restaurant.getLocation().getY())));
             rest++;
+        }
+        rest = 0;
+        for (Region.Restaurant restaurant : archetype.vehicleManager().getRegion().getNodes().stream().filter(Region.Restaurant.class::isInstance).map(Region.Restaurant.class::cast).toList()){
             AtomicInteger num = new AtomicInteger(0);
             AtomicReference<Double> average = new AtomicReference<>(0.0);
             archetype.vehicleManager().getAllVehicles().stream().filter(v -> v.getStartingNode().getComponent().equals(restaurant)).
@@ -151,22 +169,58 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
             problemTable.getItems().add(new problemArchetypeEntrys("Vehicles at Restaurant " + rest,
                 String.valueOf(archetype.vehicleManager().getAllVehicles().stream().
                     filter(v -> v.getStartingNode().getComponent().equals(restaurant)).toList().size()),
-                twoDForm.format(average.get())
-            ));
+                "Load")//twoDForm.format(average.get())
+            );
+            rest++;
+
+            for (Vehicle vehicle : archetype.vehicleManager().getAllVehicles().stream()
+                .filter(v -> v.getStartingNode().getComponent().equals(restaurant)).toList()){
+                problemTable.getItems().add(new problemArchetypeEntrys(
+                    "ID: " + vehicle.getId(),
+                    " ",
+                    twoDForm.format(vehicle.getCapacity()))
+                );
+            }
         }
 
 
 
-        problemTable.getItems().add(new problemArchetypeEntrys("Neighborhoods",
-            String.valueOf(archetype.vehicleManager().getRegion().getNodes().stream().
-                filter(n -> n instanceof Region.Neighborhood).toList().size()), " "));
+        problemTable.getItems().add(new problemArchetypeEntrys(" ", " ", " "));
+        problemTable.getItems().add(new problemArchetypeEntrys(
+            archetype.vehicleManager().getRegion().getNodes().stream().
+                filter(n -> n instanceof Region.Neighborhood).toList().size() + "  Neighborhoods",
+            " X ",
+            " Y "));
 
-        problemTable.getItems().add(new problemArchetypeEntrys("Forests",
-            String.valueOf(archetype.vehicleManager().getRegion().getNodes().stream().
-                filter(n -> !(n instanceof Region.Neighborhood) && !(n instanceof Region.Restaurant)).toList().size()), " "));
+        for (Region.Neighborhood neighborhood : archetype.vehicleManager().getRegion().getNodes().stream().filter(Region.Neighborhood.class::isInstance).map(Region.Neighborhood.class::cast).toList()) {
+            problemTable.getItems().add(new problemArchetypeEntrys(" - " + neighborhood.getName(),
+                String.valueOf(neighborhood.getLocation().getX()),
+                String.valueOf(neighborhood.getLocation().getY())));
+        }
 
-        problemTable.getItems().add(new problemArchetypeEntrys("Edges",
-            String.valueOf(archetype.vehicleManager().getRegion().getEdges().size()), " "));
+        problemTable.getItems().add(new problemArchetypeEntrys(" ", " ", " "));
+        problemTable.getItems().add(new problemArchetypeEntrys(
+            archetype.vehicleManager().getRegion().getNodes().stream().filter(n -> !(n instanceof Region.Neighborhood) && !(n instanceof Region.Restaurant)).toList().size() + "  Forests",
+            " X ",
+            " Y "));
+        for (Region.Node node : archetype.vehicleManager().getRegion().getNodes().stream()
+            .filter(nod -> !(nod instanceof Region.Restaurant) && !(nod instanceof Region.Neighborhood))
+            .map(Region.Node.class::cast).toList()) {
+            problemTable.getItems().add(new problemArchetypeEntrys(" - " + node.getName(),
+                String.valueOf(node.getLocation().getX()),
+                String.valueOf(node.getLocation().getY())));
+        }
+
+        problemTable.getItems().add(new problemArchetypeEntrys(" ", " ", " "));
+        problemTable.getItems().add(new problemArchetypeEntrys(
+            archetype.vehicleManager().getRegion().getEdges().size() + "  Edges",
+            "(X1,Y1)",
+            "(X2,Y2)"));
+        for (Region.Edge edge : archetype.vehicleManager().getRegion().getEdges()) {
+            problemTable.getItems().add(new problemArchetypeEntrys(" - " + edge.getName(),
+                "(" + edge.getNodeA().getLocation().getX() + ", "+edge.getNodeA().getLocation().getY() + ")",
+                "(" + edge.getNodeB().getLocation().getX() + ", "+edge.getNodeB().getLocation().getY() + ")"));
+        }
 
         problemTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }

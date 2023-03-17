@@ -20,7 +20,7 @@ public class DijkstraPathCalculator implements PathCalculator {
      */
     private boolean relax(DijkstraNode u, DijkstraNode v, Region.Edge w) {
         assert w != null;
-        System.out.println(w);
+        //System.out.println(w);
         Long weight = w.getDuration();
         if (u.duration != null) {
             weight = u.duration + weight;

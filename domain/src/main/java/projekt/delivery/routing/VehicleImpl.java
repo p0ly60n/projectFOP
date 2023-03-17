@@ -90,8 +90,6 @@ class VehicleImpl implements Vehicle {
                                 node),
                             arrivalAction));
                 } catch (Exception e){
-                    System.out.println(1);
-                    System.out.println(2);
                     //throw e;
                 }
 

@@ -39,7 +39,7 @@ class RegionImpl implements Region {
     @Override
     public @Nullable Edge getEdge(Location locationA, Location locationB) {
         if (locationA.compareTo(locationB) <= 0) {
-            if (edges.get(locationA) != null) {
+            if (edges.containsKey(locationA)) {
                 return edges.get(locationA).get(locationB);
             }
             else {
@@ -47,7 +47,7 @@ class RegionImpl implements Region {
             }
         }
         else {
-            if (edges.get(locationB) != null) {
+            if (edges.containsKey(locationB)) {
                 return edges.get(locationB).get(locationA);
             }
             else {
@@ -76,7 +76,6 @@ class RegionImpl implements Region {
      * @param node the {@link NodeImpl} to add.
      */
     void putNode(NodeImpl node) {
-        //TODO: reihenefolge geändert
         if (!this.equals(node.getRegion())) {
             throw new IllegalArgumentException("Node %s has incorrect region".formatted(node.toString()));
         }
@@ -105,12 +104,22 @@ class RegionImpl implements Region {
         allEdges.add(edge);
 
         if (edge.getLocationA().compareTo(edge.getLocationB()) <= 0) {
-            edges.put(edge.getLocationA(), new HashMap<>());
-            edges.get(edge.getLocationA()).put(edge.getLocationB(), edge);
+            if (edges.containsKey(edge.getLocationA())) {
+                edges.get(edge.getLocationA()).put(edge.getLocationB(), edge);
+            }
+            else {
+                edges.put(edge.getLocationA(), new HashMap<>());
+                edges.get(edge.getLocationA()).put(edge.getLocationB(), edge);
+            }
         }
         else {
-            edges.put(edge.getLocationB(), new HashMap<>());
-            edges.get(edge.getLocationB()).put(edge.getLocationA(), edge);
+            if (edges.containsKey(edge.getLocationB())) {
+                edges.get(edge.getLocationB()).put(edge.getLocationA(), edge);
+            }
+            else {
+                edges.put(edge.getLocationB(), new HashMap<>());
+                edges.get(edge.getLocationB()).put(edge.getLocationA(), edge);
+            }
         }
     }
 

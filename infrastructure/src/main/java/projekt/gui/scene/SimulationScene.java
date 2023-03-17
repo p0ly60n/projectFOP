@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import projekt.delivery.archetype.ProblemArchetype;
 import projekt.delivery.event.ArrivedAtEdgeEvent;
 import projekt.delivery.event.ArrivedAtNodeEvent;
@@ -17,16 +18,18 @@ import projekt.gui.controller.ControlledScene;
 import projekt.gui.controller.SimulationSceneController;
 import projekt.gui.pane.ControlsPane;
 import projekt.gui.pane.MapPane;
+import projekt.gui.pane.VehiclePane;
 
 import java.util.List;
 
-public class SimulationScene extends Scene implements SimulationListener, ControlledScene<SimulationSceneController> {
+public class      SimulationScene extends Scene implements SimulationListener, ControlledScene<SimulationSceneController> {
 
     private final BorderPane root;
     private final SimulationSceneController controller;
 
     private MapPane mapPane;
     private ControlsPane controlsPane;
+    private VehiclePane vehiclePane;
 
     private boolean closed;
 
@@ -46,12 +49,17 @@ public class SimulationScene extends Scene implements SimulationListener, Contro
         mapPane = new MapPane(region.getNodes(), region.getEdges(), vehicleManager.getVehicles());
 
         controlsPane = new ControlsPane(simulation, problem, run, simulationRuns, problem.simulationLength(), mapPane);
+        vehiclePane = new VehiclePane(simulation, problem, run, simulationRuns, problem.simulationLength(), mapPane);
+
         TitledPane titledControlsPane = new TitledPane("Controls", controlsPane);
+        TitledPane titledVehiclePane = new TitledPane("Vehicles", vehiclePane);
+        VBox bottomBox = new VBox(titledVehiclePane, titledControlsPane);
         titledControlsPane.setCollapsible(false);
+        titledVehiclePane.setCollapsible(true);
 
         root.setCenter(mapPane);
-        root.setBottom(titledControlsPane);
-        //TODO H11.4
+
+        root.setBottom(bottomBox);
 
         //stop the simulation when closing the window
         controller.getStage().setOnCloseRequest(e -> {
@@ -80,6 +88,7 @@ public class SimulationScene extends Scene implements SimulationListener, Contro
                 .forEach(arrivedAtEdgeEvent -> mapPane.redrawVehicle(arrivedAtEdgeEvent.getVehicle()));
 
             controlsPane.updateTickLabel(tick);
+            vehiclePane.updateVehicleInformation();
         });
 
     }

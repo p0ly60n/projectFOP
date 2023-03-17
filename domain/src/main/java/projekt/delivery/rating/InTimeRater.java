@@ -50,19 +50,19 @@ public class InTimeRater implements Rater {
                 long expectedEndTick = castEvent.getOrder().getDeliveryInterval().end();
                 long expectedStartTick = castEvent.getOrder().getDeliveryInterval().start();
 
-                if (expectedEndTick < tick) { // if the expected end tick is smaller than the current real delivery tick, there is a delay
+                if (expectedStartTick <= tick && tick <= expectedEndTick) { // on time means no delay
+                    actualTotalTicksOff -= maxTicksOff;
+                }
+
+                else if (tick > expectedEndTick) { // if the expected end tick is smaller than the current real delivery tick, there is a delay
                     long delay = tick - expectedEndTick;
                     long toleranceDelay = (delay - ignoredTicksOff > 0) ? delay - ignoredTicksOff : 0;
 
                     actualTotalTicksOff -= maxTicksOff - ((toleranceDelay > maxTicksOff) ? maxTicksOff : toleranceDelay);
                 }
 
-                else if (expectedEndTick == tick) { // on time means no delay
-                    actualTotalTicksOff -= maxTicksOff;
-                }
-
                 else { // arrived to early
-                    long delay = expectedEndTick - tick;
+                    long delay = expectedStartTick - tick;
                     long toleranceDelay = (delay - ignoredTicksOff > 0) ? delay - ignoredTicksOff : 0;
 
                     actualTotalTicksOff -= maxTicksOff - ((toleranceDelay > maxTicksOff) ? maxTicksOff : toleranceDelay);

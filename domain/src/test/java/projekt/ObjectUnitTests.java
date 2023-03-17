@@ -13,6 +13,8 @@ public class ObjectUnitTests<T> {
     private T[] testObjects;
     private T[] testObjectsReferenceEquality;
     private T[] testObjectsContentEquality;
+    private byte i;
+    private byte j;
 
     public ObjectUnitTests(Function<Integer, T> testObjectFactory, Function<T, String> toString) {
         this.testObjectFactory = testObjectFactory;
@@ -24,16 +26,28 @@ public class ObjectUnitTests<T> {
         crash(); // TODO: H12.1 - remove if implemented
     }
 
-    public void testEquals() {
-        crash(); // TODO: H12.1 - remove if implemented
+    public void testEquals(ObjectUnitTests o) {
+        // TODO: H12.1
+        ObjectUnitTests t = new ObjectUnitTests;
+        assertEquals(t,testObjects);
+        assertEquals(t,testObjectsReferenceEquality);
+        assertEquals(t,testObjectsContentEquality);
+        assertNotEquals(i!=j,testObjects);
+
     }
 
     public void testHashCode() {
-        crash(); // TODO: H12.1 - remove if implemented
+        // TODO: H12.1
+        ObjectUnitTests t = new ObjectUnitTests;
+        assertEquals(t,testObjects);
+        assertEquals(t,testObjectsReferenceEquality);
+        assertEquals(t,testObjectsContentEquality);
+        assertNotEquals(i!=j,testObjects);
     }
 
     public void testToString() {
-        crash(); // TODO: H12.1 - remove if implemented
+        ObjectUnitTests t = new ObjectUnitTests;
+        assertEquals(t,testObjects);
     }
 
 }

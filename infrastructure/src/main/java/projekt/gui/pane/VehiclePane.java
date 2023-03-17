@@ -3,6 +3,7 @@ package projekt.gui.pane;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
@@ -10,8 +11,10 @@ import projekt.delivery.archetype.ProblemArchetype;
 import projekt.delivery.routing.Vehicle;
 import projekt.delivery.simulation.Simulation;
 import projekt.delivery.simulation.SimulationConfig;
+import projekt.gui.pane.tables.vehicleTable;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class VehiclePane extends BorderPane {
@@ -40,63 +43,85 @@ public class VehiclePane extends BorderPane {
     private Collection<Vehicle> vehicles;
     public void updateVehicleInformation(){
         vehicles = problem.vehicleManager().getVehicles();
+        swapVehicle();
     }
-    private void swapVehicle(int id){
-        //ToDo Implement
+    private void swapVehicle(){
         if (vehicles.size() == 0){
-        } else chosenVehicle = vehicles.stream().filter(v -> v.getId() == id).toList().get(0);
+        } else chosenVehicle = vehicles.stream().filter(v -> v.getId() == IDInt.get()).toList().get(0);
 
-        vehicleIDTextField.setText(String.valueOf(chosenVehicle.getId()));
+        vehicleIDTextField.setText("Vehicle ID: " + chosenVehicle.getId());
         vehicleLocationTextField.setText(chosenVehicle.getOccupied().getComponent().getName());
+        //chosenVehicle.getOrders().stream().forEach( o -> vehicleOrdersListView.getItems().add(o.));
+
+        vehicleOrdersTable.getItems().removeIf(v->true);
+
+        chosenVehicle.getOrders().forEach(o -> vehicleOrdersTable.getItems()
+            .add(new vehicleTable(
+                problem.vehicleManager().getRegion().getNode(o.getLocation()),
+                o.getDeliveryInterval().start(),
+                o.getDeliveryInterval().end())));
+        vehicleOrdersTable.setMaxHeight(19*(chosenVehicle.getOrders().size()+2.5));
+        vehicleOrdersTable.setMinHeight(vehicleOrdersTable.getMaxHeight());
 
     }
     private Vehicle chosenVehicle;
     private TextField vehicleTextField;
     private TextField vehicleIDTextField;
     private TextField vehicleLocationTextField;
-    private ListView<String> vehicleOrdersListView;
+    private TableView<vehicleTable> vehicleOrdersTable;
+
+    private AtomicInteger IDInt;
 
 
     private void initComponents(ProblemArchetype problem, int run, int simulationRuns, MapPane mapPane) {
 
+        vehicleTextField = new TextField("Test");
+        vehicleIDTextField = new TextField();
+        vehicleLocationTextField = new TextField();
+        vehicleOrdersTable = new TableView<>();
+        vehicleOrdersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        IDInt = new AtomicInteger(0);
+
         Button previousButton = new Button("Previous");
-        previousButton.setOnAction(e -> swapVehicle(0));
+        previousButton.setOnAction(e -> {
+            IDInt.set(IDInt.get() - 1);
+            if (IDInt.get() < 0) IDInt.set(vehicles.size()-1);
+            swapVehicle();
+        });
 
         Button nextButton = new Button("Next");
-        nextButton.setOnAction(e -> swapVehicle(0));
-
-        vehicleTextField = new TextField("Test");
-
-
-
-        tickIntervalSlider.setValue(simulationConfig.getMillisecondsPerTick());
-        tickIntervalSlider.setMin(20);
-        tickIntervalSlider.setMax(2000);
-        tickIntervalSlider.setMajorTickUnit(1);
-        tickIntervalSlider.setSnapToTicks(true);
-        tickIntervalSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
-            simulationConfig.setMillisecondsPerTick(newValue.intValue());
-            updateText();
+        nextButton.setOnAction(e -> {
+            IDInt.set(IDInt.get() + 1);
+            if (IDInt.get() > vehicles.size()-1) IDInt.set(0);
+            swapVehicle();
         });
-        VBox sliderBox = new VBox(tickIntervalSlider, tickIntervalSliderLabel);
 
-        Label problemLabel = new Label("Simulating Problem: %s".formatted(problem.name()));
-        Label runLabel = new Label("Run: %d/%d".formatted(run + 1, simulationRuns));
-        VBox labels = new VBox(problemLabel, runLabel, tickLabel);
+        VBox IDLocationBox = new VBox(vehicleIDTextField, vehicleLocationTextField);
+
+        TableColumn<vehicleTable, String> node = new TableColumn<>("Target Location");
+        node.setCellValueFactory(new PropertyValueFactory<>("node"));
+        node.setMinWidth(100);
+        TableColumn<vehicleTable, String> orderTick = new TableColumn<>("Ordered");
+        orderTick.setCellValueFactory(new PropertyValueFactory<>("orderTick"));
+        orderTick.setMinWidth(75);
+        TableColumn<vehicleTable, String> deliveryTick = new TableColumn<>("Scheduled");
+        deliveryTick.setCellValueFactory(new PropertyValueFactory<>("deliveryTick"));
+        deliveryTick.setMinWidth(75);
+
+        vehicleOrdersTable.getColumns().add(node);
+        vehicleOrdersTable.getColumns().add(orderTick);
+        vehicleOrdersTable.getColumns().add(deliveryTick);
+        vehicleOrdersTable.setMaxHeight(96);
 
         Region intermediateRegion = new Region();
         intermediateRegion.setMinWidth(0);
         HBox.setHgrow(intermediateRegion, Priority.ALWAYS);
 
-        HBox box = new HBox(previousButton, vehicleTextField, nextButton, sliderBox, intermediateRegion, labels);
+        HBox box = new HBox(previousButton, IDLocationBox, nextButton, vehicleOrdersTable, intermediateRegion);
         box.setPadding(new Insets(0, 10, 0, 10));
         box.setSpacing(10);
 
         setCenter(box);
-    }
-
-    public void updateTickLabel(long tick) {
-        tickLabel.setText("Tick: %d/%d".formatted(tick, simulationLength));
     }
 
     private void updateText() {

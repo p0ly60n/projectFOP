@@ -40,7 +40,7 @@ public class TravelDistanceRater implements Rater {
     @Override
     public double getScore() {
         if (0 <= actualDistance && actualDistance < worstDistance * factor) {
-            return 1 - ((double) actualDistance / worstDistance * factor);
+            return 1 - ((double) actualDistance / (worstDistance * factor));
         }
         else {
             return 0;

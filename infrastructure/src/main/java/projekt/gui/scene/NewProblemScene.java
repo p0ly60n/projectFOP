@@ -18,6 +18,7 @@ import projekt.delivery.routing.Vehicle;
 import projekt.delivery.routing.VehicleManager;
 import projekt.gui.controller.MainMenuSceneController;
 import projekt.gui.controller.NewProblemSceneController;
+import projekt.gui.pane.MapPane;
 import projekt.gui.scene.tableObjects.problemArchetypeEntrys;
 import projekt.io.IOHelper;
 
@@ -49,7 +50,6 @@ public class NewProblemScene extends MenuScene<NewProblemSceneController> {
         if (problem == null){
             //ToDo problem mit nullähnlichen Values initiieren
         }
-        System.out.println(problem.name());
         this.problem = problem;
         orderGeneratorFactory= problem.orderGeneratorFactory();
         vehicleManager = problem.vehicleManager();
@@ -57,6 +57,7 @@ public class NewProblemScene extends MenuScene<NewProblemSceneController> {
         simulationLength = problem.simulationLength();
         initComponents();
     }
+    private MapPane mapPane;
     private OrderGenerator.Factory orderGeneratorFactory ;
     private VehicleManager vehicleManager;
     private Map<RatingCriteria, Rater.Factory> raterFactoryMap;
@@ -67,20 +68,44 @@ public class NewProblemScene extends MenuScene<NewProblemSceneController> {
             raterFactoryMap,
             simulationLength,
             name.getText());
+        updateProblemTable(problem);
     }
 
     @Override
     public void initComponents() {
-        if (problem != null)
+        if (problem != null){
             root.setRight(initTable());
+            root.setCenter(createMapPane());
+        }
 
+        //root.setCenter(createAdderBoxes());
+
+    }
+    private MapPane createMapPane(){
+        System.out.println(vehicleManager);
+        mapPane = new MapPane(vehicleManager.getRegion().getNodes(),
+            vehicleManager.getRegion().getEdges(),
+            vehicleManager.getAllVehicles());
+        mapPane.onEdgeRemoveSelection(e -> {
+            if (e.getNodeA().getAdjacentEdges().size() <= 1) mapPane.removeNode(e.getNodeA());
+            if (e.getNodeB().getAdjacentEdges().size() <= 1) mapPane.removeNode(e.getNodeB());
+            mapPane.removeEdge(e);
+            updateProblem();
+        });
+        mapPane.onNodeRemoveSelection(n -> {
+            for (Region.Edge e : n.getAdjacentEdges())
+                mapPane.removeEdge(e);
+            mapPane.removeNode(n);
+            updateProblem();
+        });
+        return mapPane;
     }
 
 
 
 
     private VBox createAdderBoxes(){
-        return new VBox();
+        return new VBox(createRestaurantBox());
     }
     private HBox createRestaurantBox() {
         Label X = new Label("X");

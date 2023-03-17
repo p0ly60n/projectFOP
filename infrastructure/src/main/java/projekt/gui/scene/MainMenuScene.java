@@ -104,7 +104,7 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
 
         choiceBoxHBox.getChildren().addAll(choiceBox);
 
-
+        /*
         input1 = new TextField();
         input2 = new TextField();
         input3 = new TextField();
@@ -115,14 +115,16 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
         input2.setPrefWidth(70);
         input3.setPrefWidth(70);
 
+         */
 
 
 
-        problemVBox.getChildren().addAll(labelHBox, choiceBoxHBox, problemTable, inputBox);
+
+        problemVBox.getChildren().addAll(labelHBox, choiceBoxHBox, problemTable);
 
         return problemVBox;
     }
-    private TextField input1, input2, input3;
+    //private TextField input1, input2, input3;
     private Button restaurantButton, neighbourhoodButton, forestButton, vehicleButton, raterButton;
     private TableView<problemArchetypeEntrys> problemTable;
     private void updateProblemTable(ProblemArchetype archetype){
@@ -139,7 +141,7 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
         problemTable.getItems().add(new problemArchetypeEntrys("DeliveredRatio", twoDForm.format(fact.factor), ""));
 
         InTimeRater.Factory fact2 = (InTimeRater.Factory) archetype.raterFactoryMap().get(RatingCriteria.IN_TIME);
-        problemTable.getItems().add(new problemArchetypeEntrys("TimeRater", String.valueOf(fact2.ignoredTicksOff), String.valueOf(fact2.maxTicksOff)));
+        problemTable.getItems().add(new problemArchetypeEntrys("AcceptDev, MaxDev", String.valueOf(fact2.ignoredTicksOff), String.valueOf(fact2.maxTicksOff)));
 
         TravelDistanceRater.Factory fact3 = (TravelDistanceRater.Factory) archetype.raterFactoryMap().get(RatingCriteria.TRAVEL_DISTANCE);
         problemTable.getItems().add(new problemArchetypeEntrys("DistanceRater", twoDForm.format(fact3.factor), " "));

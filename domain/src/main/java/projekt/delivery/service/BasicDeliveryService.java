@@ -33,7 +33,7 @@ public class BasicDeliveryService extends AbstractDeliveryService {
         List<Event> eventsOfTick = vehicleManager.tick(currentTick);
         //Orders laden und sortieren
         pendingOrders.addAll(newOrders);
-        pendingOrders.sort((i,j) -> (int) (i.getDeliveryInterval().end() - j.getDeliveryInterval().end()));
+        pendingOrders.sort((i,j) -> (int) (i.getDeliveryInterval().start() - j.getDeliveryInterval().start()));
 
         //Bei jedem Restaurant alle Vehicles durchgehen
         for (VehicleManager.OccupiedRestaurant restaurant : pendingOrders.stream().map(ConfirmedOrder::getRestaurant).distinct().toList()){
@@ -41,7 +41,7 @@ public class BasicDeliveryService extends AbstractDeliveryService {
                 .filter(o -> o.getOccupied() == restaurant).toList()){
                 //Vehicle mit den Orders vollladen
                 for (ConfirmedOrder pending : pendingOrders.stream().filter(o -> o.getRestaurant() == restaurant).toList()){
-                    if (vehicle.getCapacity() - vehicle.getCurrentWeight() > pending.getWeight()){
+                    if (vehicle.getCapacity() - vehicle.getCurrentWeight() >= pending.getWeight()){
                         pendingOrders.remove(pending);
                         restaurant.loadOrder(vehicle, pending, currentTick);
                     }

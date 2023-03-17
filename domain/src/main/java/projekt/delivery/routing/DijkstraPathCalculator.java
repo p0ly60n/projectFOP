@@ -19,6 +19,8 @@ public class DijkstraPathCalculator implements PathCalculator {
      * @return {@code true} if the edge was relaxed, {@code false} otherwise
      */
     private boolean relax(DijkstraNode u, DijkstraNode v, Region.Edge w) {
+        assert w != null;
+        System.out.println(w);
         Long weight = w.getDuration();
         if (u.duration != null) {
             weight = u.duration + weight;

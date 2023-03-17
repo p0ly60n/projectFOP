@@ -54,18 +54,18 @@ public class InTimeRater implements Rater {
                     long delay = tick - expectedEndTick;
                     long toleranceDelay = (delay - ignoredTicksOff > 0) ? delay - ignoredTicksOff : 0;
 
-                    actualTotalTicksOff += (toleranceDelay > maxTicksOff) ? maxTicksOff : toleranceDelay;
+                    actualTotalTicksOff -= maxTicksOff - ((toleranceDelay > maxTicksOff) ? maxTicksOff : toleranceDelay);
                 }
 
                 else if (expectedEndTick == tick) { // on time means no delay
+                    actualTotalTicksOff -= maxTicksOff;
                 }
 
                 else { // arrived to early
                     long delay = expectedEndTick - tick;
                     long toleranceDelay = (delay - ignoredTicksOff > 0) ? delay - ignoredTicksOff : 0;
-                    maxTotalTicksOff += maxTicksOff;
 
-                    actualTotalTicksOff += (toleranceDelay > maxTicksOff) ? maxTicksOff : toleranceDelay;
+                    actualTotalTicksOff -= maxTicksOff - ((toleranceDelay > maxTicksOff) ? maxTicksOff : toleranceDelay);
                 }
             }
             else if (event instanceof OrderReceivedEvent castEvent) { // Order automatically is not good

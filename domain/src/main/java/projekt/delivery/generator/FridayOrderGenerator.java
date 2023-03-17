@@ -3,6 +3,7 @@ package projekt.delivery.generator;
 import projekt.base.Location;
 import projekt.base.TickInterval;
 import projekt.delivery.routing.ConfirmedOrder;
+import projekt.delivery.routing.Region;
 import projekt.delivery.routing.VehicleManager;
 import projekt.delivery.routing.VehicleManager.OccupiedNeighborhood;
 import projekt.delivery.routing.VehicleManager.OccupiedRestaurant;
@@ -30,6 +31,7 @@ public class FridayOrderGenerator implements OrderGenerator {
     private final int deliveryInterval;
     private final double maxWeight;
     private Map<Long, Integer> tickOrderMap;
+    private Map<Long, List<ConfirmedOrder>> ticksAlreadyOrdered;
     private final long lastTick;
 
     /**
@@ -58,6 +60,7 @@ public class FridayOrderGenerator implements OrderGenerator {
         this.lastTick = lastTick;
 
         this.tickOrderMap = new HashMap<>();
+        this.ticksAlreadyOrdered = new HashMap<>();
 
         for (int indexGenerated = 0; indexGenerated < orderCount; indexGenerated++) {
             // get gaussian Value
@@ -67,6 +70,7 @@ public class FridayOrderGenerator implements OrderGenerator {
             }
 
             long tick = Math.round(gaussianVal * lastTick);
+            //generateOrders(tick);
 
             tickOrderMap.put(tick, (tickOrderMap.containsKey(tick)) ? tickOrderMap.get(tick) + 1 : 1);
 
@@ -78,7 +82,45 @@ public class FridayOrderGenerator implements OrderGenerator {
         if (tick < 0) {
             throw new IndexOutOfBoundsException(tick);
         }
+        List<ConfirmedOrder> orderList = new ArrayList<>();
 
+        if (ticksAlreadyOrdered.containsKey(tick))
+            return ticksAlreadyOrdered.get(tick);
+
+        if (!tickOrderMap.containsKey(tick)) {
+            return new ArrayList<>();
+        }
+
+        //Alle Orders des Ticks durchgehen
+        for (int generatedOrders = 0; generatedOrders < tickOrderMap.get(tick); generatedOrders++) {
+            int randomLoc = random.nextInt(0, vehicleManager.getOccupiedNeighborhoods().size());
+            Location location = vehicleManager.getOccupiedNeighborhoods().stream()
+                .map(n -> n.getComponent().getLocation()).toList().get(randomLoc);
+
+            int randomRest = random.nextInt(0, vehicleManager.getOccupiedRestaurants().size());
+            OccupiedRestaurant occupiedRestaurant = vehicleManager.getOccupiedRestaurants().stream().toList().get(randomRest);
+            Region.Restaurant restaurant = occupiedRestaurant.getComponent();
+
+            TickInterval tickInterval = new TickInterval(tick, tick + deliveryInterval);
+
+            List<String> foodList = new ArrayList<>();
+            int amountFood = random.nextInt(1, 10);
+            for (int i = 0; i < amountFood; i++) {
+                int randomFood = random.nextInt(1, restaurant.getAvailableFood().size());
+                foodList.add(restaurant.getAvailableFood().get(randomFood));
+            }
+            List<String> foodItems = new ArrayList<>();
+            int amountedFood = random.nextInt(1, 10);
+            for (int i = 0; i < amountedFood; i++) {
+                foodItems.add(restaurant.getAvailableFood().get(random.nextInt(restaurant.getAvailableFood().size())));
+            }
+
+            //0 - maxWeight exc
+            double randomWeight = random.nextDouble(maxWeight);
+            orderList.add(new ConfirmedOrder(location, occupiedRestaurant, tickInterval, foodItems, randomWeight));
+        }
+        //Marcos KOT
+        /*
         if (tick > lastTick) {
             return new ArrayList<>();
         }
@@ -126,7 +168,8 @@ public class FridayOrderGenerator implements OrderGenerator {
             double weight = random.nextDouble(maxWeight);
 
             orderList.add(new ConfirmedOrder(location, restaurant, tickInterval, foodItems, weight));
-        }
+        }*/
+        ticksAlreadyOrdered.put(tick, orderList);
         return orderList;
     }
 

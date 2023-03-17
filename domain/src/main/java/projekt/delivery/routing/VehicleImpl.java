@@ -51,17 +51,22 @@ class VehicleImpl implements Vehicle {
 
     @Override
     public void moveDirect(Region.Node node, BiConsumer<? super Vehicle, Long> arrivalAction) {
-        VehicleImpl.PathImpl nextPath = moveQueue.getFirst();
+        //TODO: fix this shit
+        VehicleImpl.PathImpl nextPath = null;
+        if (moveQueue.size() > 0) {
+            nextPath = moveQueue.getFirst();
+        }
         moveQueue.clear();
         if (occupied.getComponent() instanceof Region.Node castOccupiedNode) { // check if component is node
-            if (castOccupiedNode.equals(node)) {
+            if (node.equals(castOccupiedNode)) {
                 throw new IllegalArgumentException();
             } else {
                 moveQueued(node, arrivalAction);
             }
         }
         else { // component is edge, so first a path is run
-            moveQueue.add(nextPath);
+            Region.Edge edge = (Region.Edge) occupied.getComponent();
+            moveQueue.add(new PathImpl(vehicleManager.getPathCalculator().getPath(edge.getNodeB(), node), arrivalAction));
             moveQueued(node, arrivalAction);
         }
     }

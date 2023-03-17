@@ -28,6 +28,7 @@ import projekt.io.IOHelper;
 import projekt.runner.RunnerImpl;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -80,6 +81,7 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
 
         for (ProblemArchetype problem : problems){
             choiceBox.getItems().add(problem);
+            selectedProblemArchetype = problem;
         }
         choiceBox.setConverter(new StringConverter<ProblemArchetype>() {
             @Override
@@ -93,8 +95,10 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
             }
         });
 
-        choiceBox.getSelectionModel().selectedIndexProperty().addListener((obs, oldValue, newValue) ->
-            updateProblemTable(choiceBox.getItems().get((Integer) newValue)));
+        choiceBox.getSelectionModel().selectedIndexProperty().addListener((obs, oldValue, newValue) -> {
+            selectedProblemArchetype = choiceBox.getItems().get((Integer) newValue);
+            updateProblemTable(selectedProblemArchetype);
+        });
 
         choiceBox.getSelectionModel().select(0);
 
@@ -107,9 +111,11 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
 
 
         HBox inputBox = new HBox(input1, input2, input3);
-        input1.setPrefWidth(100);
-        input2.setPrefWidth(75);
-        input3.setPrefWidth(75);
+        input1.setPrefWidth(150);
+        input2.setPrefWidth(70);
+        input3.setPrefWidth(70);
+
+
 
 
         problemVBox.getChildren().addAll(labelHBox, choiceBoxHBox, problemTable, inputBox);
@@ -117,6 +123,7 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
         return problemVBox;
     }
     private TextField input1, input2, input3;
+    private Button restaurantButton, neighbourhoodButton, forestButton, vehicleButton, raterButton;
     private TableView<problemArchetypeEntrys> problemTable;
     private void updateProblemTable(ProblemArchetype archetype){
         if (problemTable == null)
@@ -257,6 +264,7 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
 
         optionsVbox.getChildren().addAll(
             createStartSimulationButton(),
+            createNewProblemStuff(),
             createSimulationRunsHBox(),
             createDeliveryServiceChoiceBox()
             //TODO H11.2
@@ -271,6 +279,41 @@ public class MainMenuScene extends MenuScene<MainMenuSceneController> {
             });
 
         return optionsVbox;
+    }
+    private VBox createNewProblemStuff(){
+        return new VBox(
+            createNewProblemButtonFromScratch(),
+            createNewProblemButtonFromExisting(),
+            createRemoverButton()
+            );
+    }
+
+    private Button createNewProblemButtonFromExisting() {
+        Button newProblemButton = new Button("Create new from chosen archetype");
+        newProblemButton.setPrefWidth(250);
+        newProblemButton.setOnAction(e -> {
+            NewProblemScene scene = (NewProblemScene) SceneSwitcher.loadScene(SceneSwitcher.SceneType.NEW_PROBLEM, getController().getStage());
+            if (selectedProblemArchetype == null) System.out.println("NUll");
+            scene.init(new ArrayList<>(problems), selectedProblemArchetype);
+        });
+        return newProblemButton;
+    }
+    private Button createNewProblemButtonFromScratch() {
+        Button newProblemButton = new Button("Create new from scratch");
+        newProblemButton.setPrefWidth(250);
+        newProblemButton.setOnAction(e -> {
+            NewProblemScene scene = (NewProblemScene) SceneSwitcher.loadScene(SceneSwitcher.SceneType.NEW_PROBLEM, getController().getStage());
+            scene.init(new ArrayList<>(problems), null);
+        });
+        return newProblemButton;
+    }
+    private Button createRemoverButton(){
+        Button newProblemButton = new Button("Delete chosen archetype");
+        newProblemButton.setPrefWidth(250);
+        newProblemButton.setOnAction(e -> {
+            //ToDo Create actual Remover
+        });
+        return newProblemButton;
     }
 
     private Button createStartSimulationButton() {

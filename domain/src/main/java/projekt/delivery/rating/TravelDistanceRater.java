@@ -1,11 +1,15 @@
 package projekt.delivery.rating;
 
+import projekt.delivery.event.ArrivedAtNodeEvent;
+import projekt.delivery.event.DeliverOrderEvent;
 import projekt.delivery.event.Event;
 import projekt.delivery.routing.PathCalculator;
 import projekt.delivery.routing.Region;
 import projekt.delivery.routing.VehicleManager;
 import projekt.delivery.simulation.Simulation;
 
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.tudalgo.algoutils.student.Student.crash;
@@ -24,6 +28,9 @@ public class TravelDistanceRater implements Rater {
     private final PathCalculator pathCalculator;
     private final double factor;
 
+    private long worstDistance = 0;
+    private long actualDistance = 0;
+
     private TravelDistanceRater(VehicleManager vehicleManager, double factor) {
         region = vehicleManager.getRegion();
         pathCalculator = vehicleManager.getPathCalculator();
@@ -32,7 +39,12 @@ public class TravelDistanceRater implements Rater {
 
     @Override
     public double getScore() {
-        return crash(); // TODO: H8.3 - remove if implemented
+        if (0 <= actualDistance && actualDistance < worstDistance * factor) {
+            return 1 - ((double) actualDistance / worstDistance * factor);
+        }
+        else {
+            return 0;
+        }
     }
 
     @Override
@@ -42,8 +54,31 @@ public class TravelDistanceRater implements Rater {
 
     @Override
     public void onTick(List<Event> events, long tick) {
-        return;
-        //crash(); // TODO: H8.3 - remove if implemented
+        for (Event event : events) {
+            if (event instanceof DeliverOrderEvent castEvent) {
+                long distanceThisPath = 0;
+
+                Region.Node nodeA = region.getNode(castEvent.getOrder().getRestaurant().getComponent().getLocation());
+                Region.Node nodeB = region.getNode(castEvent.getOrder().getLocation());
+
+                Deque<Region.Node> path = pathCalculator.getPath(nodeA, nodeB);
+
+                Iterator<Region.Node> iteratorPath = path.iterator();
+                Region.Node lastItem = nodeA;
+
+                while (iteratorPath.hasNext()) {
+                    Region.Node nextItem = iteratorPath.next();
+                    distanceThisPath += region.getEdge(lastItem, nextItem).getDuration();
+                    lastItem = nextItem;
+                }
+
+                worstDistance += 2 * distanceThisPath;
+
+            }
+            else if (event instanceof ArrivedAtNodeEvent castEvent) {
+                actualDistance += castEvent.getLastEdge().getDuration();
+            }
+        }
     }
 
     /**

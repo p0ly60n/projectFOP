@@ -52,27 +52,25 @@ public class InTimeRater implements Rater {
 
                 if (expectedEndTick < tick) { // if the expected end tick is smaller than the current real delivery tick, there is a delay
                     long delay = tick - expectedEndTick;
+                    long toleranceDelay = (delay - ignoredTicksOff > 0) ? delay - ignoredTicksOff : 0;
 
-                    maxTotalTicksOff += maxTicksOff;
-                    actualTotalTicksOff = (delay - ignoredTicksOff > maxTicksOff) ? maxTicksOff : delay - ignoredTicksOff;
+                    actualTotalTicksOff += (toleranceDelay > maxTicksOff) ? maxTicksOff : toleranceDelay;
                 }
 
-                else if (expectedEndTick == tick) { // on time
-                    maxTotalTicksOff += maxTicksOff;
+                else if (expectedEndTick == tick) { // on time means no delay
                 }
 
                 else { // arrived to early
                     long delay = expectedEndTick - tick;
-
+                    long toleranceDelay = (delay - ignoredTicksOff > 0) ? delay - ignoredTicksOff : 0;
                     maxTotalTicksOff += maxTicksOff;
-                    actualTotalTicksOff += (delay - ignoredTicksOff > maxTicksOff) ? maxTicksOff : delay - ignoredTicksOff;
+
+                    actualTotalTicksOff += (toleranceDelay > maxTicksOff) ? maxTicksOff : toleranceDelay;
                 }
             }
-            else if (event instanceof OrderReceivedEvent castEvent) {
-                if (castEvent.getOrder().getDeliveryInterval().end() > tick) {
+            else if (event instanceof OrderReceivedEvent castEvent) { // Order automatically is not good
                     maxTotalTicksOff += maxTicksOff;
                     actualTotalTicksOff += maxTicksOff;
-                }
             }
         }
     }

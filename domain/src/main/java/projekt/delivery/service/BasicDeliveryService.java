@@ -25,6 +25,12 @@ public class BasicDeliveryService extends AbstractDeliveryService {
 
     @Override
     protected List<Event> tick(long currentTick, List<ConfirmedOrder> newOrders) {
+        List<Event> eventsOfTick = vehicleManager.tick(currentTick);
+        pendingOrders.addAll(newOrders);
+        pendingOrders.sort((i,j) -> (int) (i.getDeliveryInterval().end() - j.getDeliveryInterval().end()));
+        for (VehicleManager.OccupiedRestaurant restaurant : pendingOrders.stream().map(ConfirmedOrder::getRestaurant).distinct().toList()){
+
+        }
         return crash(); // TODO: H9.1 - remove if implemented
     }
 

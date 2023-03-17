@@ -18,11 +18,21 @@ public class ComparableUnitTests<T extends Comparable<? super T>> {
 
     @SuppressWarnings("unchecked")
     public void initialize(int testObjectCount) {
-        crash(); // TODO: H12.1 - remove if implemented
+        testObjects = (T[]) new Comparable<?>[testObjectCount];
+
+        for (int i = 0; i < testObjectCount; i++) {
+            testObjects[i] = testObjectFactory.apply(i);
+        }
     }
 
     public void testBiggerThen() {
-        crash(); // TODO: H12.1 - remove if implemented
+        for (int i = 0; i < testObjects.length; i++) {
+            for (int j = 0; j < testObjects.length; j++) {
+                if (i > j) {
+                    assertTrue(testObjects[i].compareTo(testObjects[j]) < 0);
+                }
+            }
+        }
     }
 
     @SuppressWarnings("EqualsWithItself")
